@@ -19,13 +19,14 @@ local RENDER_BIND_NAME = "CameraLightPluginUpdate"
 
 local isOn = false
 local interface = script.Parent.Interface
-
 local lightPart
 local overrides = {}
 
 local brightness = 1
 local range = 60
 local color = Color3.new(1,1,1)
+
+
 
 
 
@@ -69,6 +70,30 @@ function UpdateLight()
 	GetLightPart().SpotLight.Color = color -- Color
 	GetLightPart().SpotLight.Range = range -- Range
 end
+
+
+
+
+--Setup
+local openPlugin = plugin:CreateToolbar("CameraLight"):CreateButton(
+	"Modified Camera Light","From sleitnick's plugin, UI and adjustments by g_captain","rbxassetid://5605053300")
+
+local Toggle = false
+openPlugin.Click:Connect(function()
+	Toggle = not Toggle 
+	openPlugin:SetActive(Toggle)
+	interface.Parent = game.CoreGui
+	interface.Enabled = Toggle 
+	isOn = not isOn
+	if isOn then
+		game:GetService("RunService"):BindToRenderStep(RENDER_BIND_NAME, Enum.RenderPriority.Camera.Value - 1, UpdateLight)
+	else
+		game:GetService("RunService"):UnbindFromRenderStep(RENDER_BIND_NAME)
+		lightPart:Destroy()
+	end
+end)
+
+
 
 
 
