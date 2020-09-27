@@ -1,0 +1,25 @@
+local texturePresets = script.Parent.Presets:GetChildren()
+local currentTexture --Instance
+local currentSides = {}
+
+--[[Features: Save Texture, Select texture and block, ]]
+
+function addItem(texture)
+    -- Get widget, clone, change thumbnail, position it   
+end
+
+for _, preset in pairs(texturePresets) do
+    addItem(preset)
+end
+
+--
+ApplyEvent.Connect(function()
+    local currentBlock = Selection:Get()[1]
+    currentTexture = preview.ImageId
+    for _, side in pairs (currentSides) do
+        local texture = Instance.new("Texture")
+        texture.ImageId = currentTexture
+        texture.Face = Enum.Face[side]
+        texture.Parent = currentBlock
+    end
+end)
