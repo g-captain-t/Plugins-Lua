@@ -1,5 +1,4 @@
--- G_Captain's Backdoor Scans
--- Prints out the backdoor keywords found in scripts.
+-- G_Captain's Backdoor Scanner
 -- g-captain-t/Plugins-Lua/blob/master/
 
 local interface = script.Parent.Interface
@@ -70,7 +69,6 @@ local function Scan()
 		local flagTable = flagData[2]
 		
 		local scriptName = theScript:GetFullName()
-		print(scriptName)
 		local warningLevel
 		if flagTable["Yellow"][1] ~= nil then warningLevel = "YFlags" end
 		if flagTable["Orange"][1] ~= nil then warningLevel = "OFlags" end
@@ -98,7 +96,7 @@ end
 
 -- Bind to button
 local pluginOn = false
-local openPlugin = plugin:CreateToolbar("GCap's Backdoor Scan"):CreateButton("Backdoor Scan","Prints out flagged scripts, their location, and the flags","rbxassetid://5899414710")
+local openPlugin = plugin:CreateToolbar("GCap's Backdoor Scan"):CreateButton("Backdoor Scan","Quarantines flagged scripts, their location, and the flags","rbxassetid://5899414710")
 
 openPlugin.Click:Connect(function()
 	pluginOn = not pluginOn
