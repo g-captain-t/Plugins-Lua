@@ -1,8 +1,6 @@
 local mFrame = script.Parent.Parent
 local defButtonColor = mFrame.RFlags_Button.ImageColor3
 local newButtonColor = mFrame.RFlags_Button.NewButtonColor.Value
-print( defButtonColor, newButtonColor)
-
 
 local function onClick(Frame)
 	script.Parent.Value = Frame.Name
