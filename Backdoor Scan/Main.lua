@@ -4,35 +4,17 @@
 local interface = script.Parent.Interface
 local Lb = require(script.Parent.Library)
 
-local Iletters = {"I","l","1"}
-for i=1, 3 do local onLetter = Iletters[i] 
-	for i2=1,3 do local onLetter2 = Iletters[i2] 
-		for i3=1,3 do 
-			local onLetter3 = Iletters[i3] 
-			local joined = onLetter..onLetter2..onLetter3
-			if joined ~= ("Ill" or "llI") then table.insert (Lb.yellowFlags, onLetter..onLetter2..onLetter3) end
-			-- Counts as Yellow because of wors like "CanCollide" "BillboardGui" "Falling"
-		end
-	end
-end -- Insert all the possible 3-character I1l's into redFlags
-
-
 -- SCANS
 local function con (list) return table.concat(list,", ")end
 local u = string.upper	
-local function matchString(source, Flag)
-	local match, letters = string.find(u(source), u(Flag))
-	if match ~= nil then return true end
-end	
-
 
 local function CheckScript(theScript)
 	local source = theScript.Source
 	local flags = {Red={}, Orange={}, Yellow={}}	-- The detected flags in string. 
 	
-	for _, flag in pairs (Lb.yellowFlags) do if matchString(source, flag) then table.insert(flags["Yellow"], flag) end end
-	for _, flag in pairs (Lb.orangeFlags) do if matchString(source, flag) then table.insert(flags["Orange"], flag) end end
-	for _, flag in pairs (Lb.redFlags) do if matchString(source, flag) then table.insert(flags["Red"], flag) end end
+	for _, flag in pairs (Lb.yellowFlags) do if Lb.matchString(source, flag) then table.insert(flags["Yellow"], flag) end end
+	for _, flag in pairs (Lb.orangeFlags) do if Lb.matchString(source, flag) then table.insert(flags["Orange"], flag) end end
+	for _, flag in pairs (Lb.redFlags) do if Lb.matchString(source, flag) then table.insert(flags["Red"], flag) end end
 	for _, flag in pairs (Lb.badNames) do if theScript.Name == flag then table.insert(flags["Red"], flag)end end
 	for i, flag in pairs (Lb.ExtraChecks(theScript)) do table.insert(flags["Red"], flag) end
 
@@ -79,10 +61,9 @@ local function Scan()
 		local frame = interface.Frame[warningLevel]
 		local clonedItem = frame["Item"]:Clone()
 		clonedItem.Name = theScript.Name
-		clonedItem.TextLabel.Text = "<b>"..scriptName.."</b>\n"
+		clonedItem.TextLabel.Text = scriptName.."\n"
 			..joinedWarnings
 			.."\nClick here to quarantine script!"
-		clonedItem.TextLabel.RichText = true
 		clonedItem:WaitForChild("Object").Value = theScript
 		clonedItem.Parent = frame
 		clonedItem.Visible = true
