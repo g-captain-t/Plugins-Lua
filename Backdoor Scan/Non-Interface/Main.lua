@@ -1,33 +1,13 @@
--- G_Captain's Backdoor Scans
--- Prints out the backdoor keywords found in scripts.
--- g-captain-t/Plugins-Lua/blob/master/
-
+-- The old non-interface main code that only prints the results in output.
+-- This is kept here as a reference to the main mechanism that just sorts the data, before throwing in an interface and additional actions.
 
 local Lb = require(script.Parent.Library)
-
-local Iletters = {"I","l","1"}
-for i=1, 3 do local onLetter = Iletters[i] 
-	for i2=1,3 do local onLetter2 = Iletters[i2] 
-		for i3=1,3 do 
-			local onLetter3 = Iletters[i3] 
-			local joined = onLetter..onLetter2..onLetter3
-			table.insert (Lb.redFlags, onLetter..onLetter2..onLetter3)
-			-- Counts as Yellow unless multiple of them are found "CanCollide" "BillboardGui" "Falling"
-		end
-	end
-end -- Insert all the possible 3-character I1l's into redFlags
-
-
-
-
--- SCANS
 
 local u = string.upper	
 local function matchString(source, Flag)
 	local match, letters = string.find(u(source), u(Flag))
 	if match ~= nil then return true end
 end	
-
 
 local function CheckScript(theScript)
 	local source = theScript.Source
@@ -60,7 +40,7 @@ local function Scan()
 		end
 	end
 	
-
+	-- All the data has been sorted, now print it out
 	warn("---------------------------------------------")
 	for i, flagData in pairs (FlaggedScripts) do 	
 		warn("[Backdoor Scan] FLAG:", flagData[1]:GetFullName(), flagData[2]) 

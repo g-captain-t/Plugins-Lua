@@ -14,8 +14,8 @@ local Library = {}
 	":IsStudio()", "math.ldexp"
 }
  Library.redFlags = { 
-	"synapse", "getfenv","setfenv", "getsenv", "luraph", "Instance.new('Script", 'Instance.new("Script',
-	"IronBrew", "bruh_I", "bruh_l", "Illll", "IlIl", "llllI", "\239\191\188", "obfuscat", "haxor"
+	"synapse", "getfenv","setfenv", "getsenv", "luraph", "Instance.new('Script", 'Instance.new("Script', "IronBrew", 
+	"bruh_I", "bruh_l", "Illll", "IlIl", "llllI", "\239\191\188", "obfuscat", "haxor", ".load(game.PlaceId)"
 }
 
  Library.badNames = { -- credits to Dan_PanMan 's Antivirus
