@@ -4,7 +4,6 @@ local Selection = game:GetService("Selection")
 local History = game:GetService("ChangeHistoryService")
 
 
-
 --[[ General
 Change font
 Set Anchorpoint & Position
@@ -12,9 +11,9 @@ Set Anchorpoint & Position
 
 function tools.Font(stringFont, descendantsToo)
 	local font = Enum.Font[stringFont]
-	local toChange = (descendantsToo and Selection:Get():GetDescendants() or Selection:Get())
+	local toChange = (descendantsToo and Selection:Get()[1]:GetDescendants() or Selection:Get())
 	for i,v in pairs (toChange) do
-		v.Font = font
+		pcall(function() v.Font = font end)
 	end
 	print("Changed font")
 	History:SetWaypoint("Change Fonts")
@@ -23,8 +22,7 @@ end
 function tools.Anchor (APoint, Position)
 	local toChange = Selection:Get()
 	for i,v in pairs (toChange) do
-		v.AnchorPoint = APoint
-		v.Position = Position
+		pcall (function() v.AnchorPoint = APoint v.Position = Position end)
 	end
 	print("Anchor points")
 	History:SetWaypoint("Anchor Points")
@@ -66,18 +64,20 @@ function tools.BackupClone()
 end
 
 function tools.ScaleText(descendantsToo)
-	local toScale = (descendantsToo and Selection:Get():GetDescendants() or Selection:Get())
-	for i,v in pairs (toScale) do
+	local toScale = (descendantsToo and Selection:Get()[1]:GetDescendants() or Selection:Get())
+	for i,v in pairs (toScale) do 
+		pcall( function()
 		v.Size = UDim2.new(v.Size.X.Scale, v.Size.X.Offset, (v.TextBounds.Y/v.Parent.AbsoluteSize.Y) , v.Size.Y.Offset)
 		v.TextScaled = true
+		end) 
 	end
 	print("Scaled text")
 	History:SetWaypoint("Convert Text to Scale")
 end
 
 function tools.Scale(size, position, descendantsToo)
-	local toScale = (descendantsToo and Selection:Get():GetDescendants() or Selection:Get())
-	for i,v in pairs (toScale) do
+	local toScale = (descendantsToo and Selection:Get()[1]:GetDescendants() or Selection:Get())
+	for i,v in pairs (toScale) do pcall( function()
 		local AbsSize = v.AbsoluteSize
 		local AbsSizeParent = v.Parent.AbsoluteSize
 		v.Size = size and UDim2.new((AbsSize.X/AbsSizeParent.X), 0, (AbsSize.Y/AbsSizeParent.Y) , 0) or v.Size
@@ -85,6 +85,7 @@ function tools.Scale(size, position, descendantsToo)
 		local AbsPos= v.AbsolutePosition
 		local AbsPosParent = v.Parent.AbsolutePosition
 		v.Position = position and UDim2.new((AbsPos.X/AbsPosParent.X), 0, (AbsPos.Y/AbsPosParent.Y) , 0) or v.Position
+		end) 
 	end
 	print("Scaled objects")
 	History:SetWaypoint("Scale")
