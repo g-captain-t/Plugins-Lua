@@ -19,6 +19,17 @@ function tools.Font(stringFont, descendantsToo)
 	History:SetWaypoint("Change Fonts")
 end
 
+function tools.FontSize(stringFontSize, descendantsToo)
+	local fontsize = tonumber(stringFontSize)
+	local toChange = (descendantsToo and Selection:Get()[1]:GetDescendants() or Selection:Get())
+	for i,v in pairs (toChange) do
+		pcall(function() v.TextSize = fontsize end)
+	end
+	print("Changed font size to "..stringFontSize)
+	History:SetWaypoint("Change Font Sizes")
+end
+
+
 function tools.Anchor (APoint, Position)
 	local toChange = Selection:Get()
 	for i,v in pairs (toChange) do
@@ -28,6 +39,28 @@ function tools.Anchor (APoint, Position)
 	History:SetWaypoint("Anchor Points")
 end
 
+function tools.CopyProperty (property)
+	local toChange = Selection:Get()
+	local sample = toChange[1]
+	for i,v in pairs (toChange) do
+		pcall (function() if v == sample then return end
+			v[property] = sample[property]
+		end)
+	end
+	print("Copied property "..property)
+	History:SetWaypoint("Copy Properties")
+end
+
+function tools.SwapProperty(property)
+	History:SetWaypoint("Swapped Properties")
+	local toChange = Selection:Get()
+	local current1Value = toChange[1][property]
+	local current2Value = toChange[2][property]
+	pcall (function() toChange[1][property] = current2Value end)
+	pcall (function() toChange[2][property] = current1Value end)
+	print("Swapped Property "..property)
+	History:SetWaypoint("Swapped Properties")
+end
 
 
 --[[FRAME SCALE ACTIONS -- When done, do all of these functions
@@ -75,20 +108,44 @@ function tools.ScaleText(descendantsToo)
 	History:SetWaypoint("Convert Text to Scale")
 end
 
+local function GetAxis(frame)
+	local fsize = frame.SizeConstraint
+	local V1, V2
+	if fsize==Enum.SizeConstraint.RelativeXX then V1,V2 = "X","X"
+	elseif fsize==Enum.SizeConstraint.RelativeXY then V1,V2 = "X","Y"
+	elseif fsize==Enum.SizeConstraint.RelativeYY then V1,V2 = "Y","Y" end
+	return V1, V2
+end
+
 function tools.Scale(size, position, descendantsToo)
 	local toScale = (descendantsToo and Selection:Get()[1]:GetDescendants() or Selection:Get())
 	for i,v in pairs (toScale) do pcall( function()
+		local V1, V2 = GetAxis(v)
 		local AbsSize = v.AbsoluteSize
 		local AbsSizeParent = v.Parent.AbsoluteSize
-		v.Size = size and UDim2.new((AbsSize.X/AbsSizeParent.X), 0, (AbsSize.Y/AbsSizeParent.Y) , 0) or v.Size
+		v.Size = size and UDim2.new((AbsSize[V1]/AbsSizeParent.X), 0, (AbsSize[V2]/AbsSizeParent.Y) , 0) or v.Size
 		
-		local AbsPos= v.AbsolutePosition
-		local AbsPosParent = v.Parent.AbsolutePosition
-		v.Position = position and UDim2.new((AbsPos.X/AbsPosParent.X), 0, (AbsPos.Y/AbsPosParent.Y) , 0) or v.Position
+		local vPos= v.Position
+		v.Position = position and UDim2.new((vPos.X.Offset/AbsSizeParent.X + vPos.X.Scale), 0, (vPos.Y.Offset/AbsSizeParent.Y + vPos.Y.Scale) , 0) or v.Position
 		end) 
-	end
+	end 
 	print("Scaled objects")
 	History:SetWaypoint("Scale")
+end
+
+function tools.Offset(size, position, descendantsToo)
+	local toOffset = (descendantsToo and Selection:Get()[1]:GetDescendants() or Selection:Get())
+	for i,v in pairs (toOffset) do pcall( function()
+			local AbsSize = v.AbsoluteSize
+			local AbsSizeParent = v.Parent.AbsoluteSize
+			v.Size = size and UDim2.new(0, AbsSize.X, 0, AbsSize.Y) or v.Size
+
+			local vPos = v.Position
+			v.Position = position and UDim2.new(0,(vPos.X.Scale*AbsSizeParent.X + vPos.X.Scale), 0, (vPos.Y.Scale*AbsSizeParent.Y + vPos.Y.Scale)) or v.Position
+		end) 
+	end 
+	print("Offset objects")
+	History:SetWaypoint("Offset")
 end
 
 return tools
