@@ -15,6 +15,11 @@ local FontSize = script.Parent.Gen_FontSize
 FontSize.All.MouseButton1Click:Connect(function()Tools.FontSize(FontSize.Input.Text, true)end)
 FontSize.Selected.MouseButton1Click:Connect(function()Tools.FontSize(FontSize.Input.Text, false) end)
 
+
+local IncZIndex = script.Parent.Gen_IncZIndex
+IncZIndex.All.MouseButton1Click:Connect(function()Tools.IncZIndex(IncZIndex.Input.Text, true)end)
+IncZIndex.Selected.MouseButton1Click:Connect(function()Tools.IncZIndex(IncZIndex.Input.Text, false)end)
+
 local CopyProps = script.Parent.Gen_PropertyCopy
 CopyProps.Button.MouseButton1Click:Connect(function() Tools.CopyProperty(CopyProps.Input.Text) end)
 
