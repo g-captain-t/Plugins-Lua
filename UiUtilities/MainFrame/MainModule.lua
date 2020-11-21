@@ -5,8 +5,10 @@ local History = game:GetService("ChangeHistoryService")
 
 
 --[[ General
-Change font
+Change font & font size
+ZIndex Increment
 Set Anchorpoint & Position
+Copy/Swap Properties
 ]]
 
 function tools.Font(stringFont, descendantsToo)
@@ -27,6 +29,16 @@ function tools.FontSize(stringFontSize, descendantsToo)
 	end
 	print("Changed font size to "..stringFontSize)
 	History:SetWaypoint("Change Font Sizes")
+end
+
+function tools.IncZIndex(stringIncrement, descendantsToo)
+	local increment = tonumber(stringIncrement)
+	local toChange = (descendantsToo and Selection:Get()[1]:GetDescendants() or Selection:Get())
+	for i,v in pairs (toChange) do
+		pcall(function() v.ZIndex = v.ZIndex + increment end)
+	end
+	print("Increment ZIndex "..stringIncrement)
+	History:SetWaypoint("Increment ZIndex")
 end
 
 
