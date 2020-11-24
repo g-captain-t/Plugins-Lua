@@ -11,7 +11,7 @@ local widgetInfo = DockWidgetPluginGuiInfo.new(
 -- Widget
 
 local toolbar = plugin:CreateToolbar("DataStore")
-local pluginButton = toolbar:CreateButton("Lookup DataStore", "Lookup and modify DataStores in JSON formatting", "rbxassetid://5996816763")
+local pluginButton = toolbar:CreateButton("Lookup DataStore", "Lookup and modify DataStores in JSON formatting", "rbxassetid://5996904118")
 
 local widget = plugin:CreateDockWidgetPluginGui("DataStore", widgetInfo)
 widget.Title = "Lookup DataStore"  
