@@ -1,2 +1,2 @@
-# roblox-plugins
-My open source plugins will be documented here.
+# g_captain's Roblox Plugins
+My plugins will be documented here.
