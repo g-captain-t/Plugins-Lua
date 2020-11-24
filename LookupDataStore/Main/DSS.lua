@@ -32,5 +32,6 @@ function DSS.Remove(store, key)
 end
 
 function DSS.GetDataStore(store) return DataStoreService:GetDataStore(store) end
+function DSS.GetOrderedStore(store) return DataStoreService:GetOrderedDataStore(store) end
 
 return DSS
