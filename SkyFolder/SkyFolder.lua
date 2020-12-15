@@ -13,7 +13,9 @@ local function Save()
 	}
 	local longstring = "local Properties = {"
 	for _, prop in pairs (LightingProperties) do
-		longstring = longstring.."\n[\""..prop.."\"] = "..tostring(Lighting[prop])..";"
+		local prefix = typeof(Lighting[prop])=="Color3" and "Color3.new(" or ""
+		local suffix = typeof(Lighting[prop])=="Color3" and ")" or ""
+		longstring = longstring.."\n[\""..prop.."\"] = "..prefix..tostring(Lighting[prop])..suffix..";"
 	end
 	LightingModule.Source = longstring.."\n}\nreturn Properties"
 
@@ -43,7 +45,7 @@ local function Load()
 			pcall(function() Lighting[property] = value end)
 		end
 	end
-	
+
 	local Children = SkyFolder:FindFirstChild("Children")
 	if Children then
 		for _, child in pairs (Children:GetChildren()) do
