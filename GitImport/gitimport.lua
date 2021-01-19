@@ -80,6 +80,8 @@ function gitimport.ImportToNewScript(url, scriptclass)
 
 	local newscript = Instance.new(class)
 	newscript.Name = name
+	newscript.Source = raw
+	
 	return newscript
 end
 
