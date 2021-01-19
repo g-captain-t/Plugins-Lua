@@ -29,7 +29,7 @@ local function getreponame(url)
 end
 
 local function ismodule(src)
-    return pcall(function()require(loadstring(src)())end)
+    return pcall(function() require(loadstring(src)()) end)
 end
 
 function GitImport.ImportToSelection(url)
@@ -87,7 +87,7 @@ function GitImport.getcontent(get, foldername)
         wait()
         print("Importing " .. content.name .. "...")
 
-        local isfolder = content.download_url ~= nil
+        local isfolder = content.download_url == nil
         local _, _, name = content.name:find("(.-)%.lua") or isfolder and nil, nil, content.name
         if name then --// Is a .lua file or a folder
             if isfolder then
