@@ -2,22 +2,18 @@
 
 GitImport
 Author: g_captain
-Importing GitHub files and repositories into Roblox
+Import GitHub files and repositories into Roblox
 
 ]]
+
 local HTTP = game:GetService("HTTPService")
 local GitImport = {}
 
 local function getraw(url)
     --// Returns the raw URL
     local israw = url:find("https://raw.githubusercontent.com/.-/.-/")
-    if israw then
-        return url
-    end
-    assert(
-        url:find("https://github.com/.-/.-/"),
-        "Link provided must be a github.com or raw.githubusercontent.com link!"
-    )
+    if israw then return url end
+    assert(url:find("https://github.com/.-/.-/"), "Link provided must be a github.com or raw.githubusercontent.com link!")
     local rawurl = url:gsub("https://github.com/(.-)/(.-)/.-/(.+)", "https://raw.githubusercontent.com/%1/%2/%3")
     return rawurl
 end
@@ -33,24 +29,17 @@ local function getreponame(url)
 end
 
 local function ismodule(src)
-    return pcall(
-        function()
-            require(loadstring(src)())
-        end
-    )
+    return pcall(function()require(loadstring(src)())end)
 end
 
 function GitImport.ImportToSelection(url)
     --// Import a source into a selected script
     local s = Selection:Get()[1]
     assert(s:IsA("Script") or s:IsA("ModuleScript"), "Selected object must be a script!")
-    local success, raw =
-        pcall(
-        function()
-            local rawurl = getraw(url)
-            return HTTP:GetAsync(rawurl)
-        end
-    )
+    local success, raw = pcall(function()
+        local rawurl = getraw(url)
+        return HTTP:GetAsync(rawurl)
+    end)
     assert(success, "Error importing source to selected:" .. v)
     s.Source = rawurl
     warn("Successfully imported to selection from " .. url .. "!")
@@ -58,13 +47,10 @@ end
 
 function GitImport.ImportToNewScript(url, scriptclass)
     --// Convert a source url to a new script
-    local success, raw =
-        pcall(
-        function()
-            local rawurl = getraw(url)
-            return HTTP:GetAsync(rawurl)
-        end
-    )
+    local success, raw = pcall(function()
+        local rawurl = getraw(url)
+        return HTTP:GetAsync(rawurl)
+    end)
     assert(success, "Error importing to new script from URL: " .. v)
 
     local filename = getfilename(url)
@@ -88,13 +74,10 @@ end
 
 function GitImport.getcontent(get, foldername)
     --// Import a folder from api.github.com/repos/[author]/[repo]/content/
-    local s, content =
-        pcall(
-        function()
+    local s, content = pcall(function()
             local c = HTTP:GetAsync(get)
             return c and HTTP:JSONDecode(c)
-        end
-    )
+    end)
     assert(s, content)
 
     local contentfolder = Instance.new("Folder")
