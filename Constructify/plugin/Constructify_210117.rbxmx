@@ -1,0 +1,316 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<External>null</External>
+	<External>nil</External>
+	<Item class="Folder" referent="RBX8B8E4C8458C94AFCBF15605FCD2E5DF0">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<string name="Name">Constructify</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+		<Item class="ModuleScript" referent="RBX1088D19F99494EC587E31E9FD570959F">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">constructify</string>
+				<string name="ScriptGuid">{D0CED8C9-5EAF-4A37-8F62-3202E558488A}</string>
+				<ProtectedString name="Source"><![CDATA[--[[
+
+Constructify
+Author: g_captain
+Generates the constructor string of any object and its children in this format:
+
+local o = Instance.new(classhere)
+for i,v in pairs ({
+	["Property"] = value;
+	["Property"] = value;
+}) do 
+	o[i]=v
+end
+o.Parent = parentvarname
+
+]]
+
+
+local Ser = require(script.serialize)
+local HTTPS = game:GetService("HttpService")
+
+local httpenabled, latestjson = pcall(function()
+	return HTTPS:GetAsync("https://anaminus.github.io/rbx/json/api/latest.json")
+end)
+latestjson = latestjson and HTTPS:JSONDecode(latestjson)
+
+
+--// Table shortcuts
+
+local function tablemerge(t1,t2)
+	for i,v in pairs (t2) do
+		if type(i)=="string" then
+			t1[i]=v
+		else
+			table.insert(t1,v)
+		end
+	end
+end
+local function tablefind(t,value)
+	for i,v in pairs (t) do
+		if v==value then return i,v end
+	end
+end
+
+--// Retrieves all the properties of a class from anaminus' API dump
+local gp = {} -- Allow the function to call itself
+
+local function GetProperties(class)
+	assert(httpenabled, "Error retrieving properties. Please check if HTTP requests are enabled.")
+	local properties = {}
+	for _,data in pairs (latestjson) do
+		if data.type=="Property" and data.Class==class and not tablefind(data.tags,"readonly") then
+			table.insert(properties,data.Name)
+		elseif data.type=="Class" and data.Name==class then
+			--// Insert superclass as well for inherited properties
+			wait()
+			local superclassprops = data.Superclass and gp.GetProperties(data.Superclass) or {}
+			--// merge properties
+			tablemerge(properties, superclassprops)
+		end
+	end
+	return properties
+end
+
+gp.GetProperties = GetProperties
+
+--// Returns the string form of a key-value pair
+--// ["Key"] = Value;
+
+local function toIV(index,value)
+	local str = "[\""..index.."\"] = "
+	local Type = typeof(value)
+	local val
+	if Type == "EnumItem" then
+		val = tostring(value)
+	elseif Type == "BrickColor" then
+		val = "BrickColor.new(\""..tostring(value).."\")"
+	elseif Type == "Rect" then
+		val = "Rect.new(Vector2.new("..value.Min.X..","..value.Min.Y.."),Vector2.new("..value.Max.X..","..value.Max.Y.."))"
+	elseif Ser.lib[Type] then
+		local serd = Ser.Serialize(value)
+		val = serd[1]..".new("
+		for i,v in pairs (serd[2]) do 
+			if i==#serd[2] then 
+				val=val..v
+			else 
+				val=val..v..","
+			end
+		end
+		val = val..")"
+	elseif Type=="number" or Type=="boolean" then
+		val = tostring(value)
+	elseif Type=="string" then
+		val = "\""..value.."\""
+	else print(Type)
+	end
+	return val and str..val..";"
+end
+
+--// Main
+
+local c = {}
+
+local function constructify (obj, variableName, parentvarname, ignoreDescendants)
+	if obj:IsA("Script") or obj:IsA("ModuleScript") then return end
+
+	variableName = variableName or obj.Name
+	variableName = variableName:gsub("%s+","_")
+	
+	local class = obj.ClassName
+	--// Check if instance is creatable
+	--// Also compare to default so we only take the changed properties
+	local success, default = pcall( function ()
+		return Instance.new(class)
+	end)
+	if not success then return end
+	local properties = GetProperties(class)
+	
+	print("Getting constructors for "..obj.Name.."...")
+
+	local str = "local "..variableName.." = Instance.new(\""..class.."\")\nfor i,v in pairs ({"
+
+	for _, property in pairs (properties) do 
+		local vstr
+		local s,value = pcall(
+			function() 
+				return obj[property]
+			end)
+		if s and value and value ~= default[property] and property ~= "Parent" and typeof(property) ~= "Instance" then
+			vstr = toIV(property, value)
+		end
+		str=vstr and str..vstr.."\n" or str
+	end
+
+	str = str.."}) do \n	"..variableName.."[i] = v\nend\n"
+
+	--// If the parent variable name is probided
+	str = parentvarname and str..variableName..".Parent = "..parentvarname or str
+
+	--// Retrieve the children's constructors and merge it
+	if not ignoreDescendants then 
+		for _,child in pairs (obj:GetChildren()) do 
+			local childstr = c.constructify(child, child.Name, variableName)
+			str = childstr and str.."\n\n"..childstr or str
+		end
+	end
+
+	default:Destroy()
+	return str
+end
+
+c.constructify = constructify
+
+return constructify]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+			<Item class="ModuleScript" referent="RBX40C5C6A0DC4347F3A7B4A1467B1769BA">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">serialize</string>
+					<string name="ScriptGuid">{79ADB039-099A-4D8E-A72C-5D17A5B9B321}</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+
+Serialize
+Author: g_captain
+Serializes Roblox datatypes into tables. A serialized value looks like this:
+{"Vector3",{13,4,3}}
+
+BrickColor
+CFrame
+Color3
+EnumItem
+NumberRange
+UDim
+UDim2
+Vector2
+Vector3
+
+]]
+
+local Serialize = {}
+
+function Serialize.pack(dtype, value)
+	return {dtype, value}
+end
+local pack = Serialize.pack
+
+Serialize.lib = {
+	["BrickColor"] = {
+		serialize = function(value) 
+			return pack("BrickColor", {tostring(value)})
+		end,
+	},
+	["CFrame"] = {
+		serialize = function(value)
+			return pack("CFrame", {value:GetComponents()})
+		end,
+	},
+	["Color3"] = {
+		serialize = function(value)
+			local f = math.floor
+			-- return pack("Color3", {f(value.R*255), f(value.G*255), f(value.B*255)})
+			--// Just for the constructor, use RGB/255
+			return pack("Color3", {value.R, value.G, value.B})
+		end,
+	},
+	["EnumItem"] = {
+		serialize = function(value)
+			local str = tostring(value)
+			local _, _, k, v = str:find("Enum%.(%a+)%.(%a+)")
+			local split = {k, v}
+			return pack("EnumItem", split)
+		end,
+	},
+	["NumberRange"] = {
+		serialize = function(value)
+			return pack("NumberRange", {value.Min, value.Max})
+		end,
+	},
+	["UDim"] = {
+		serialize = function(value)
+			return pack("UDim", {value.Scale, value.Offset})
+		end,
+	},
+	["UDim2"] = {
+		serialize = function(value)
+			return pack("UDim2", {value.X.Scale, value.X.Offset, value.Y.Scale, value.Y.Offset})
+		end,
+	},
+	["Vector2"] = {
+		serialize = function(value)
+			return pack("Vector2", {value.X, value.Y})
+		end,
+	},
+	["Vector3"] = {
+		serialize = function(value)
+			return pack("Vector3", {value.X, value.Y, value.Z})
+		end,
+	}
+}
+
+function Serialize.Serialize(value)
+	local Type = typeof(value)
+	if Serialize.lib[Type] then
+		return Serialize.lib[Type].serialize(value)
+	else
+		return value
+	end
+end
+
+return Serialize]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
+		</Item>
+		<Item class="Script" referent="RBX7754FC44DCE246EB89FF095110E6413D">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="Disabled">false</bool>
+				<Content name="LinkedSource"><null></null></Content>
+				<string name="Name">plugin</string>
+				<string name="ScriptGuid">{8F854885-FC33-4FBA-81F8-99398F5C43C0}</string>
+				<ProtectedString name="Source"><![CDATA[local constructify = require(script.Parent.constructify)
+local Selection = game:GetService("Selection")
+
+local toolbar = plugin:CreateToolbar("Constructify") --// I have no thumbnail
+local One = toolbar:CreateButton("Get Constructor", "Get the constructor of the selected object", "rbxassetid://5614579544")
+local All = toolbar:CreateButton("Get All Constructors", "Get all constructors of the selected object and its children", "rbxassetid://5614579544")
+
+local function export(str,name)
+	local strval = Instance.new("StringValue")
+	strval.Name = name
+	strval.Value = str
+	strval.Parent = workspace
+end
+
+One.Click:Connect(function()
+	local selected = Selection:Get()
+	assert(selected[1], "Select an object first!")
+	local str = constructify(selected[1], nil, nil, true)
+	export(str,selected[1].Name)
+	warn("Constructify finished!")
+end)
+
+All.Click:Connect(function()
+	local selected = Selection:Get()
+	assert(selected[1], "Select an object first!")
+	local str = constructify(selected[1])
+	export(str,selected[1].Name)
+	warn("Constructify finished!")
+end)]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+			</Properties>
+		</Item>
+	</Item>
+</roblox>
