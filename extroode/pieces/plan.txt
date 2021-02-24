@@ -1,0 +1,192 @@
+UI
+	Display
+		Viewport
+		Canvasguides
+		Canvas
+		CanvasBackground
+	RightBar
+		ColorPalette
+			Color
+			...
+			Color
+		DepthPalette
+			1
+			...
+			8
+	LeftBar
+		Build
+		Paint
+		Depth
+		Preview
+	TopBar
+		Title
+		Actions
+			Export
+			Import
+			Render
+			Clear
+	BottomBar
+		Primitive
+		...
+		Primitive
+
+User Input
+
+	Mouse draw/drag/held+move -->
+		Get hovered pixel frame					UI
+		Get current mode					STATE
+		If Build:
+			get selected color hex 				STATE
+			get selected color RGB				LOOKUP
+			get selected part				STATE
+			get selected part rbxasetid://			LOOKUP
+			change pixeldata p, c, d==0 and 1 or d		PROJECT
+			update frame to part icon rbxasetid://		UI
+			update frame to part color RGB			UI
+		If Paint:
+			get selected color hex 				STATE
+			get selected color RGB				STATE
+			If found part:
+				change pixeldata p			PROJECT
+				update part icon color			UI
+		If Depth:
+			get selected depth				STATE
+			If found part:
+				change pixeldata d			PROJECT
+				update part depth text			UI
+		If Preview:
+			nothing
+				
+	Mode Select -->
+		If Build:
+			Show color palette				UI
+			Hide, clear viewport				UI
+			Hide depth					UI
+		If Paint:
+			Show color palette				UI
+			Hide, clear viewport				UI
+			Hide depth					UI
+		If Depth:
+			Get last selected depth				STATE
+			Outline the depth icon in the modes menu	UI
+			Outline the selected depth box			UI
+			For all the pixels:
+				If p, then show part depth		UI
+			Hide, clear viewport				UI
+			Hide color palette				UI
+		If Preview:
+			Render
+			Set render parent to viewport			UI
+			Set viewport visible				UI
+			Make the render spin				UI
+
+	Rotate, Click on pixel -->
+		Get current clicked pixel				UI
+		Get current pixel's pixeldata				PROJECT
+		If pixel is a square, return
+		Set current pixel rotation to +=1 or r==4 and 1		PROJECT
+		Update icon rotation to r*90				UI
+
+	Depth Option Select -->
+		Outline selected depth box				UI
+		Get selected depth number from name			UI
+		Set selected depth to depth				STATE
+	
+	Color Palette Select -->
+		Outline selected color box				UI
+		Get selected color hex from name			UI
+		Set selected color hex to color hex 			STATE
+
+	Part Select -->
+		Outline selected part					UI
+		Set selected part to part				STATE 
+
+	Change title -->
+		Change title text box unless it's changed from there	UI
+		Set project title					PROJECT
+
+	Load / Import -->
+		Get project from selected module			
+		JSONDecode
+		Set state project to project 				STATE
+		Get project name					PROJECT
+		Get all pixel depth					PROJECT
+		Get all pixel parts					PROJECT
+		Get all pixel colors hex 				PROJECT
+		Get all pixel colors RGB				LOOKUP
+		Get all pixel part icons rbxassetid://			LOOKUP
+		Set title to project name				UI
+		Set all frame icons colors to r or FFFFF		UI
+		Set all frame icons to rbxassetid:// or empty		UI
+		Set all depth value to depth or 0			UI
+
+	Open Initial -->
+		Create empty project
+		Load empty project								
+		Select color gray					STATE
+		Select depth 1						STATE
+		Select part square					STATE
+		Select mode build					STATE
+		
+	Clear --> 
+		Create empty project
+		Load empty project	
+		Destroy current project	object			
+	
+	Export -->
+		Create new modulescript	
+		JSONEncode
+		Set source
+		Set parent
+
+	Render -->
+		Get all pixel data					PROJECT
+		Create model container
+		For each pixel:
+			if no pixel.p, skip
+			Get the pixel y, x 				PROJECT
+			Get the pixel data				PROJECT
+			Clone the part model pixel.p
+			# Depth axis is X
+			Set the part size to:
+				X: depth,
+				Y,Z: 1
+			Set the part position to:
+				X: 0;
+				Y,Z = y,x
+			Set the part orientation to:
+				X: pixel.r*90,
+				Y,Z = 0,0
+			Set the part color to px.r in RGB
+			Set the parent to the container
+		Set container parent to workspace
+			
+Therefore the objects:
+	user state = {
+		selectedcolor = "FFFFFF"
+		selecteddepth = 1
+		selectedpart = "square"
+		currentmode = "build"
+		currentproject = <project object here>
+	}
+	pixeldata = {
+		p=nil;
+		r=1;
+		c="FFFFFF";
+		d=0;
+	}
+	project = {
+		name = "MyProject"
+		canvas = {
+			{pixeldata ... x 16}
+			{pixeldata ... x 16} 
+			... x 16
+		}
+	}
+
+Bindings 
+
+
+
+	
+		
